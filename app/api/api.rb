@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 class API < Grape::API
   format :json
-  #formatter :json, Grape::Formatter::Rabl
+  formatter :json, Grape::Formatter::Rabl
   default_format :json
   # /api
   prefix 'api'
@@ -17,62 +17,60 @@ class API < Grape::API
     end
   end
 
-  # /api/v1/tid  
-  resource :tid do
-  	# request が来たらデータベースから tid に存在する記事のIDとlinkを返す  	
-    get do
-      @top_links = Newsarticles.where(:pid => nil).select(:link)
+  # /api/v1/top_arts 
+  resource :top_arts do
+  	# request が来たらデータベースから tid に存在する記事のIDとlinkを返す
+    desc 'category'
+    #クライアントから受け取るパラメータの定義
+    # params do
+    #   requires :category, type: String, desc: 'category'
+    # end
+
+    #rablでのJson定義を用いてGetする
+    get '/', rabl: 'api/top_art' do
+      @top_links = Newsarticles.where(:pid => nil)#, :category => nil)
+      #カテゴリーをキーにハッシュ化
+      #@top_links.to_json
     end
-
-    get :pol do
-    	#各数値が最も高いaidを得る
-      @link = []
-		  pol_id = Polarity.where(:score => Polarity.maximum(:score)).select(:aid)
-    	@links = Newsarticles.where(:aid => pol_id).select(:link)
-      #@link = @links.first
-      #ActiveRecord::Base.include_root_in_json = false
-      #@link.to_json
-
-    end
-
-    get :cov do
-      #各数値が最も高いaidを得る
-      @link = []
-      cov_id = Coverage.where(:score => Coverage.maximum(:score)).select(:aid)
-      @links = Newsarticles.where(:aid => cov_id).select(:link)
-      #@link = @links.first
-      #ActiveRecord::Base.include_root_in_json = false
-      #@link.to_json
-
-    end
-
-    get :det do
-      #各数値が最も高いaidを得る
-      @link = []
-      det_id = Detailed.where(:score => Detailed.maximum(:score)).select(:aid)
-      @links = Newsarticles.where(:aid => det_id).select(:link)
-      #@link = @links.first
-      #ActiveRecord::Base.include_root_in_json = false
-      #@link.to_json
-
-    end
-
-    get :top do
-      
-      #@top_links.to_json({:link :tid})
-
-    end
-    # parameta difinision
-  	# desc 'トップ記事の取得'
-   #  params do
-   #    requires :top_id, type: Integer, desc: 'Top ID'
-   #    requires :link, type: String, desc: 'Top link'
-   #  end
-  	
-  	
 
     get :secret do
       err401
     end
+
   end
+
+  # /api/v1/links 
+  resource :links do
+    desc 'links'
+    #各数値が最も高いaidを得る
+    get '/', rabl: 'api/link' do
+      @links = []
+      #尺度の値が最も大きな記事IDを尺度毎にとる
+		  pol_id = Polarity.where(:score => Polarity.maximum(:score)).select(:aid)
+      cov_id = Coverage.where(:score => Coverage.maximum(:score)).select(:aid)
+      det_id = Detail.where(:score => Detail.maximum(:score)).select(:aid)
+      det_link = Newsarticles.find_by(:aid => det_id)
+      cov_link = Newsarticles.find_by(:aid => cov_id)
+    	pol_link = Newsarticles.find_by(:aid => pol_id)
+
+      #kindを更新し、どの尺度の記事か見分けられるように
+      det_link.update_attribute(:kind, 'deep') 
+      cov_link.update_attribute(:kind, 'wide')
+      pol_link.update_attribute(:kind, 'opp')
+
+      #linkに入れる
+      @links.push(det_link)
+      @links.push(cov_link)
+      @links.push(pol_link)
+
+      @links.to_json
+
+    end
+
+    get :secret do
+      err401
+    end
+
+  end
+
 end

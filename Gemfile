@@ -47,6 +47,8 @@ gem 'unicorn'
 
 # introduce grape
 gem 'grape'
+#grapeとrablを用いる
+gem 'grape-rabl'
 
 # テスト用オブジェクト作成gem
 gem 'factory_girl_rails'

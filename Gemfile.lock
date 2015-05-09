@@ -61,6 +61,11 @@ GEM
       rack-accept
       rack-mount
       virtus (>= 1.0.0)
+    grape-rabl (0.3.1)
+      grape
+      i18n
+      rabl
+      tilt
     hashie (3.3.2)
     hike (1.2.3)
     i18n (0.7.0)
@@ -157,6 +162,7 @@ DEPENDENCIES
   factory_girl_rails
   faker-japanese
   grape
+  grape-rabl
   jbuilder (~> 1.2)
   jquery-rails
   oj
