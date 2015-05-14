@@ -1,6 +1,8 @@
 ServerNews::Application.routes.draw do
   get "main/index"
+  #post "api/top_arts"
   mount API => '/'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

@@ -2,14 +2,14 @@ class CreateNewsarticles < ActiveRecord::Migration
   def change
     create_table :newsarticles, :id=>false, :primary_key => :aid do |t|
       t.string :aid, :null => false
-      t.string :title
-      t.string :image
-      t.string :summary
-      t.string :link
-      t.string :text
-      t.string :media
-      t.string :pid
-      t.string :pubDate
+      t.text :title
+      t.text :image
+      t.text :summary
+      t.text :link
+      t.text :text
+      t.text :media
+      t.text :pid
+      t.text :pubDate
 
       t.timestamps
     end

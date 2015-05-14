@@ -61,5 +61,7 @@ gem 'oj'
 
 # 複雑なjsonを書くのに必要
 gem 'rabl'
+#復合キーを持つために必要
+gem 'composite_primary_keys'
 
 

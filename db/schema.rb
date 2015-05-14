@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150502091453) do
+ActiveRecord::Schema.define(version: 20150512035219) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -35,6 +35,17 @@ ActiveRecord::Schema.define(version: 20150502091453) do
     t.datetime "updated_at"
   end
 
+  create_table "histories", id: false, force: true do |t|
+    t.string   "aid",        null: false
+    t.string   "uuid",       null: false
+    t.string   "link"
+    t.float    "p_score"
+    t.float    "c_score"
+    t.float    "d_score"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "newsarticles", id: false, force: true do |t|
     t.string   "aid",        null: false
     t.string   "title"
@@ -53,6 +64,12 @@ ActiveRecord::Schema.define(version: 20150502091453) do
   create_table "polarities", id: false, force: true do |t|
     t.string   "aid",        null: false
     t.float    "score"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "uuid_tables", id: false, force: true do |t|
+    t.string   "uuid",       null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
