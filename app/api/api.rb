@@ -20,8 +20,10 @@ class API < Grape::API
 
   # /api/v1/top_arts 
   resource :top_arts do
+
   	# request が来たらデータベースから tid に存在する記事のIDとlinkを返す
     desc 'uuid check to top_arts'
+
     #クライアントから受け取るパラメータの定義
     params do
        requires :uuid, type: String, desc: 'uuid'
@@ -35,7 +37,7 @@ class API < Grape::API
 
       #top記事を持ってくる
       @top_links = Newsarticles.where(:pid => nil)
-      @top_links = @top_links.select('aid','image','summary','title','category')
+      @top_links = @top_links.select('aid','image','summary','title','category','link')
     end
 
     get :secret do
@@ -50,21 +52,37 @@ class API < Grape::API
     #受け取ったjsonをカットしparamへ格納
     params do
        requires :uuid, type: String, desc: 'uuid'
-       requires :aid, type: String, desc: 'aid'
+       requires :read_aid, type: String, desc: '読んだ記事のaid' 
+       requires :root_aid, type: String, desc: 'pid'
+       requires :action, type: String, desc: 'action'
+       #詳細画面->詳細画面の遷移の時だけ
+       optional :next_aid, type: String, desc: '次に読む記事のaid'
     end
 
     #各数値が最も高いaidを得る
     post '/', rabl: 'api/link' do
-      client_aid = params[:aid]
+      action = params[:action]
+      read_aid = params[:read_aid]
       client_uuid = params[:uuid]
+      next_aid = params[:next_aid]
+      root_aid = params[:root_aid]
 
-      client_pid = Newsarticles.where(:aid => client_aid).select(:pid)
+      history_reg = CalcHistoryController.new()
+      print "next_aid #{next_aid} \n"
+      print "root_aid #{root_aid}\n"
+      print "client_pid #{client_pid}\n"
+      print "client_uuid #{client_uuid}\n"
+
+      #historyへの登録
+      if next_aid == nil then
+        history_reg.register_history(client_uuid, read_aid)
+      end
 
       @links = []
-      #pid = client_pidかつ尺度の値が最も大きな記事IDを尺度毎にとる
-		  pol_id = Polarity.where(:score => Polarity.maximum(:score, :conditions =>{:pid => client_pid})).select(:aid)
-      cov_id = Coverage.where(:score => Coverage.maximum(:score, :conditions =>{:pid => client_pid})).select(:aid)
-      det_id = Detail.where(:score => Detail.maximum(:score), :conditions =>{:pid => client_pid}).select(:aid)
+      #pid = root_aidかつ尺度の値が最も大きな記事IDを尺度毎にとる
+		  pol_id = Polarity.where(:score => Polarity.maximum(:score, :conditions =>{:pid => root_aid})).select(:aid)
+      cov_id = Coverage.where(:score => Coverage.maximum(:score, :conditions =>{:pid => root_aid})).select(:aid)
+      det_id = Detail.where(:score => Detail.maximum(:score), :conditions =>{:pid => root_aid}).select(:aid)
       det_link = Newsarticles.find_by(:aid => det_id)
       cov_link = Newsarticles.find_by(:aid => cov_id)
     	pol_link = Newsarticles.find_by(:aid => pol_id)

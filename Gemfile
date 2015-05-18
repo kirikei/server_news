@@ -16,7 +16,7 @@ gem 'uglifier', '>= 1.3.0'
 gem 'coffee-rails', '~> 4.0.0'
 
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
-# gem 'therubyracer', platforms: :ruby
+gem 'therubyracer', platforms: :ruby
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
@@ -63,5 +63,8 @@ gem 'oj'
 gem 'rabl'
 #復合キーを持つために必要
 gem 'composite_primary_keys'
+
+#エラーを防ぐ
+gem 'bigdecimal'
 
 

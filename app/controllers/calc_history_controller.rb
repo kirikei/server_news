@@ -1,14 +1,23 @@
 class CalcHistoryController < ApplicationController
 
+  #uuidの登録
   def register_uuid(client_uuid)
     unless(UuidTable.where(:uuid => client_uuid).exists?) then
         new_uuid = UuidTable.new(:uuid => client_uuid)
         new_uuid.save
     end
-  end 
+  end
 
-  def history_calculate(uuid,aid,pid)
-    print("uuid : #{uuid}")
+  def register_history(client_uuid, aid)
+    unless(History.where(:uuid => client_uuid, :aid => aid).exists?) then
+        new_history = History.new(:uuid => client_uuid, :aid => aid)
+        new_history.save
+    end
+  end
+
+  #履歴の増加に因る各尺度の再計算
+  def history_calculate(uuid,client_aid,pid)
+    print("uuid : #{uuid}, aid : #{client_aid}")
     event_aids = Newsarticles.where(:pid => pid).select(:aid)
 
 
@@ -28,7 +37,7 @@ class CalcHistoryController < ApplicationController
   #文字列をHashへ変換
   def string2hash
     hash = []
-  	self.delete("]","[") #先頭と最後尾の[]を削除
+  	self.delete("}","{") #先頭と最後尾の[]を削除
   	key_values = self.split(",") #key=valueの配列を確保
     #=で仕切られた部分を分離してkeyとvalueへ
     key_values.each {|key_value|
