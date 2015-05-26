@@ -7,6 +7,6 @@ run Rails.application
 require 'grape/rabl'
 
 use Rack::Config do |env|
-  env['api.tilt.root'] = '/Users/admin/rails_lesson/server_news/app/views'
+  env['api.tilt.root'] = '/home/kiritoshi/server_news/app/views'
 end
 
