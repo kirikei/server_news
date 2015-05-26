@@ -3,7 +3,7 @@
 set -e
 
 TIMEOUT=${TIMEOUT-60}
-APP_ROOT="/Users/admin/rails_lesson/server_news"
+APP_ROOT="/home/kiritoshi/server_news"
 PID=/tmp/unicorn.pid
 #RAILS_ENV=production
 RAILS_ENV=development
