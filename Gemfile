@@ -65,6 +65,6 @@ gem 'rabl'
 gem 'composite_primary_keys'
 
 #エラーを防ぐ
-gem 'bigdecimal'
+gem 'bigdecimal', '1.2.7'
 
 

@@ -14,3 +14,7 @@
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
+
+# 無視する設定ファイル
+config.ru
+config/database.yml

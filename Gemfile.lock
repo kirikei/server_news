@@ -30,7 +30,7 @@ GEM
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
       thread_safe (~> 0.3, >= 0.3.1)
-    bigdecimal (1.2.0)
+    bigdecimal (1.2.7)
     builder (3.1.4)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
@@ -94,7 +94,7 @@ GEM
     polyglot (0.3.5)
     rabl (0.11.5)
       activesupport (>= 2.3.14)
-    rack (1.5.2)
+    rack (1.5.3)
     rack-accept (0.4.5)
       rack (>= 0.4)
     rack-mount (0.8.3)
@@ -148,7 +148,7 @@ GEM
       polyglot (>= 0.3.1)
     turbolinks (2.5.3)
       coffee-rails
-    tzinfo (0.3.43)
+    tzinfo (0.3.44)
     uglifier (2.7.1)
       execjs (>= 0.3.0)
       json (>= 1.8.0)
@@ -166,7 +166,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bigdecimal
+  bigdecimal (= 1.2.7)
   coffee-rails (~> 4.0.0)
   composite_primary_keys
   factory_girl_rails

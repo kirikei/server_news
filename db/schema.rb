@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150512035219) do
+ActiveRecord::Schema.define(version: 20150521091216) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,18 +30,24 @@ ActiveRecord::Schema.define(version: 20150512035219) do
 
   create_table "details", id: false, force: true do |t|
     t.string   "aid",        null: false
-    t.float    "score"
+    t.decimal  "score"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  create_table "histories", id: false, force: true do |t|
+  create_table "histories", force: true do |t|
     t.string   "aid",        null: false
     t.string   "uuid",       null: false
-    t.string   "link"
-    t.float    "p_score"
-    t.float    "c_score"
-    t.float    "d_score"
+    t.integer  "time"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "middle_scores", id: false, force: true do |t|
+    t.string   "aid",        null: false
+    t.text     "entity",     null: false
+    t.text     "polarity",   null: false
+    t.text     "core",       null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -64,6 +70,34 @@ ActiveRecord::Schema.define(version: 20150512035219) do
   create_table "polarities", id: false, force: true do |t|
     t.string   "aid",        null: false
     t.float    "score"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "polarity_scores", id: false, force: true do |t|
+    t.string   "aid"
+    t.text     "p_score"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "topic_scores", id: false, force: true do |t|
+    t.string   "aid",        null: false
+    t.text     "entity",     null: false
+    t.text     "topic",      null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "topic_scores", ["aid", "entity"], name: "index_topic_scores_on_aid_and_entity", unique: true, using: :btree
+
+  create_table "user_scores", id: false, force: true do |t|
+    t.string   "aid",        null: false
+    t.string   "uuid",       null: false
+    t.text     "link"
+    t.decimal  "p_score"
+    t.decimal  "c_score"
+    t.decimal  "d_score"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
