@@ -21,9 +21,8 @@ development:
   host : server-news-instance.crgksitpuhmv.ap-northeast-1.rds.amazonaws.com
   pool: 5
   post : 5432
-  username: kiritoshi
-  password: ybaystars
-
+  username: 
+  password: 
 
   # Connect on a TCP socket. Omitted by default since the client uses a
   # domain socket that doesn't need configuration. Windows does not have
