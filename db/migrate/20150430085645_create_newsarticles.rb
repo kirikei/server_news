@@ -9,7 +9,7 @@ class CreateNewsarticles < ActiveRecord::Migration
       t.text :text
       t.text :media
       t.text :pid
-      t.text :pubDate
+      t.text :pubdate
 
       t.timestamps
     end
