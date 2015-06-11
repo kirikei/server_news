@@ -18,9 +18,11 @@ development:
   adapter: postgresql
   encoding: unicode
   database: server_news_development
+  host : localhost
   pool: 5
+  post : 5432
   username: server_news
-  password:
+  password: 
 
   # Connect on a TCP socket. Omitted by default since the client uses a
   # domain socket that doesn't need configuration. Windows does not have

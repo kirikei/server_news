@@ -53,16 +53,18 @@ ActiveRecord::Schema.define(version: 20150604025212) do
   end
 
   create_table "newsarticles", id: false, force: true do |t|
-    t.text "aid",      null: false
-    t.text "title"
-    t.text "summary"
-    t.text "link"
-    t.text "text"
-    t.text "media"
-    t.text "image"
-    t.text "pid"
-    t.text "category"
-    t.text "pubdate"
+    t.string   "aid",        null: false
+    t.string   "title"
+    t.string   "image"
+    t.string   "summary"
+    t.string   "link"
+    t.string   "text"
+    t.string   "media"
+    t.string   "pid"
+    t.string   "pubdate"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "category"
   end
 
   create_table "polarities", id: false, force: true do |t|

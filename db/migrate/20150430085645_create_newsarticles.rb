@@ -10,6 +10,7 @@ class CreateNewsarticles < ActiveRecord::Migration
       t.text :media
       t.text :pid
       t.text :pubdate
+
       t.timestamps :analyzed_at
       #大抵not NULLにすべきか
       t.timestamps
