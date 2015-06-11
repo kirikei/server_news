@@ -17,11 +17,11 @@
 development:
   adapter: postgresql
   encoding: unicode
-  database: server_news_development
-  host : localhost
+  database: server_news_database
+  host : server-news-instance.crgksitpuhmv.ap-northeast-1.rds.amazonaws.com
   pool: 5
   post : 5432
-  username: server_news
+  username: 
   password: 
 
   # Connect on a TCP socket. Omitted by default since the client uses a
