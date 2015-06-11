@@ -25,7 +25,7 @@ ActiveRecord::Schema.define(version: 20150604025212) do
     t.string   "text"
     t.string   "media"
     t.string   "pid"
-    t.string   "pubDate"
+    t.string   "pubdate"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "category"
