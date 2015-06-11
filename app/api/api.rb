@@ -19,7 +19,7 @@ class API < Grape::API
     end
     #記事の３つのリンクを返すActionの条件
     def check_links(action)
-      if action == 'opp' || action == 'deep' || action == 'wide' then
+      if action == 'opp' || action == 'deep' || action == 'wide' || action == 'link' then
          return(true)
       else
         return(false)
@@ -70,7 +70,7 @@ class API < Grape::API
 
       #top記事を持ってくる
       @top_links = Newsarticles.where(:pid => nil)
-      @top_links = @top_links.select('aid','image','summary','title','category','link')
+      @top_links = @top_links.select('aid','image','summary','title','category','link','pubdate')
     end
 
     get :secret do
@@ -93,7 +93,7 @@ class API < Grape::API
         requires :action, type: String, desc: 'action'
         requires :time, type: Integer, desc: '読むのにかかった時間'
         #詳細画面->詳細画面の遷移の時だけ
-        optional :next_aid, type: String, desc: '次に読む記事のaid'
+        requires :next_aid, type: String, desc: '次に読む記事のaid'
     end
 
     #各数値が最も高いaidを得る
@@ -113,7 +113,7 @@ class API < Grape::API
       print "client_uuid #{client_uuid}\n"
 
       #historyへの登録
-      if read_aid != nil then
+      if read_aid != 0 then
           calc_hist.register_history(client_uuid, read_aid, time)
       end
 
@@ -154,5 +154,33 @@ class API < Grape::API
     end
 
   end
+
+#更新日時を取得するAPI
+  # /api/v1/update 
+  resource :update do
+
+    get '/', rabl: 'api/update' do
+      now_time = Time.now()
+      @send_time = Time.new()
+      year = now_time.year
+      month = now_time.month
+      day = now_time.day
+      hour = now_time.hour
+
+      if(hour > 18 || (hour > 0 && hour < 6)) then
+        @send_time = Time.local(year, month, day, 18, 0, 0)
+      elsif(hour > 6 && hour < 12) then
+        @send_time = Time.local(year, month, day, 6, 0, 0)
+      else
+        @send_time = Time.local(year, month, day, 12, 0, 0)
+      end
+
+      @send_time.to_json
+    end
+  end
+
+
+
+
 
 end

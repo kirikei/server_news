@@ -9,8 +9,9 @@ class CreateNewsarticles < ActiveRecord::Migration
       t.text :text
       t.text :media
       t.text :pid
-      t.text :pubDate
-
+      t.text :pubdate
+      t.timestamps :analyzed_at
+      #大抵not NULLにすべきか
       t.timestamps
     end
     execute "ALTER TABLE newsarticles ADD PRIMARY KEY (aid);"

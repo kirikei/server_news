@@ -11,10 +11,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150521091216) do
+ActiveRecord::Schema.define(version: 20150604025212) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "back_newsarticles", id: false, force: true do |t|
+    t.string   "aid",        null: false
+    t.string   "title"
+    t.string   "image"
+    t.string   "summary"
+    t.string   "link"
+    t.string   "text"
+    t.string   "media"
+    t.string   "pid"
+    t.string   "pubDate"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "category"
+  end
 
   create_table "coreentities", id: false, force: true do |t|
     t.text "aid"
@@ -23,7 +38,7 @@ ActiveRecord::Schema.define(version: 20150521091216) do
 
   create_table "coverages", id: false, force: true do |t|
     t.string   "aid",        null: false
-    t.float    "score"
+    t.decimal  "score"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -53,23 +68,21 @@ ActiveRecord::Schema.define(version: 20150521091216) do
   end
 
   create_table "newsarticles", id: false, force: true do |t|
-    t.string   "aid",        null: false
-    t.string   "title"
-    t.string   "image"
-    t.string   "summary"
-    t.string   "link"
-    t.string   "text"
-    t.string   "media"
-    t.string   "pid"
-    t.string   "pubDate"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "category"
+    t.text "aid",      null: false
+    t.text "title"
+    t.text "summary"
+    t.text "link"
+    t.text "text"
+    t.text "media"
+    t.text "image"
+    t.text "pid"
+    t.text "category"
+    t.text "pubdate"
   end
 
   create_table "polarities", id: false, force: true do |t|
     t.string   "aid",        null: false
-    t.float    "score"
+    t.decimal  "score"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -107,5 +120,7 @@ ActiveRecord::Schema.define(version: 20150521091216) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "uuid_tables", ["uuid"], name: "uuid", unique: true, using: :btree
 
 end
