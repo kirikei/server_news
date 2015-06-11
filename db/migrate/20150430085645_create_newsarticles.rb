@@ -10,7 +10,7 @@ class CreateNewsarticles < ActiveRecord::Migration
       t.text :media
       t.text :pid
       t.text :pubdate
-
+      t.timestamps :analyzed_at
       t.timestamps
     end
     execute "ALTER TABLE newsarticles ADD PRIMARY KEY (aid);"
