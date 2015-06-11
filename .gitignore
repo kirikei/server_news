@@ -18,3 +18,4 @@
 # 無視する設定ファイル
 config.ru
 config/database.yml
+unicorn.sh
