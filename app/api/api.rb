@@ -113,7 +113,7 @@ class API < Grape::API
       print "client_uuid #{client_uuid}\n"
 
       #historyへの登録
-      if read_aid != 0 then
+      if read_aid.length != 0 then
           calc_hist.register_history(client_uuid, read_aid, time)
       end
 
