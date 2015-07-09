@@ -37,11 +37,11 @@ class API < Grape::API
 
   # 例外ハンドル 500(internal server error)
   rescue_from :all do |e|
-    # if Rails.env.development? #環境がdevelopmentならば
-    #   raise e
-    # else
+     if Rails.env.development? #環境がdevelopmentならば
+       raise e
+     else
       rack_response({result_code:'error', message: e.message, result:{}}.to_json, 500)
-    #end
+     end
   end
 
   #外部キーエラーが起きたとき（uuidに限定したいなぁ）
@@ -69,7 +69,8 @@ class API < Grape::API
       uuid_reg.register_uuid(params[:uuid])      
 
       #top記事を持ってくる
-      @top_links = Newsarticles.where(:pid => nil)
+      @top_links = CurrentNewsView.where(:pid => nil)
+
       @top_links = @top_links.select('aid','image','summary','title','category','link','pubdate','media')
     end
 
@@ -121,16 +122,15 @@ class API < Grape::API
       #３つのリンクのactionならば
       if check_links(action) then
         #pid = root_aidかつ尺度の値が最も大きな記事IDを尺度毎にとる
-		    # pol_id = Polarity.where(:score => Polarity.maximum(:score, :conditions =>{:pid => root_aid})).select(:aid)
-      #   cov_id = Coverage.where(:score => Coverage.maximum(:score, :conditions =>{:pid => root_aid})).select(:aid)
-      #   det_id = Detail.where(:score => Detail.maximum(:score), :conditions =>{:pid => root_aid}).select(:aid)
-        pol_id = Polarity.where(:score => Polarity.maximum(:score)).select(:aid)
-        cov_id = Coverage.where(:score => Coverage.maximum(:score)).select(:aid)
-        det_id = Detail.where(:score => Detail.maximum(:score)).select(:aid)
-
-        det_link = Newsarticles.find_by(:aid => det_id)
-        cov_link = Newsarticles.find_by(:aid => cov_id)
-      	pol_link = Newsarticles.find_by(:aid => pol_id)
+		    pol_id = UserScore.where(:p_score => UserScore.maximum(:p_score, :conditions =>{:pid => root_aid, :uuid => client_uuid})).select(:aid)
+        cov_id = UserScore.where(:c_score => UserScore.maximum(:c_score, :conditions =>{:pid => root_aid, :uuid => client_uuid})).select(:aid)
+        det_id = UserScore.where(:d_score => UserScore.maximum(:d_score, :conditions =>{:pid => root_aid, :uuid => client_uuid})).select(:aid)
+        # pol_id = Polarity.where(:score => Polarity.maximum(:score)).select(:aid)
+        # cov_id = Coverage.where(:score => Coverage.maximum(:score)).select(:aid)
+        # det_id = Detail.where(:score => Detail.maximum(:score)).select(:aid)
+        det_link = CurrentNewsView.find_by(:aid => det_id)
+        cov_link = CurrentNewsView.find_by(:aid => cov_id)
+      	pol_link = CurrentNewsView.find_by(:aid => pol_id)
 
         #kindを更新し、どの尺度の記事か見分けられるように
         det_link.update_attribute(:kind, 'deep') 

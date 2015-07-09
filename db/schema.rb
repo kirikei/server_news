@@ -11,10 +11,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150604025212) do
+ActiveRecord::Schema.define(version: 20150707051204) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "back_newsarticles", id: false, force: true do |t|
+    t.string   "aid",        null: false
+    t.string   "title"
+    t.string   "image"
+    t.string   "summary"
+    t.string   "link"
+    t.string   "text"
+    t.string   "media"
+    t.string   "pid"
+    t.string   "pubDate"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "category"
+  end
 
   create_table "coreentities", id: false, force: true do |t|
     t.text "aid"
@@ -26,6 +41,7 @@ ActiveRecord::Schema.define(version: 20150604025212) do
     t.decimal  "score"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "pid"
   end
 
   create_table "details", id: false, force: true do |t|
@@ -33,6 +49,7 @@ ActiveRecord::Schema.define(version: 20150604025212) do
     t.decimal  "score"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "pid"
   end
 
   create_table "histories", force: true do |t|
@@ -45,26 +62,27 @@ ActiveRecord::Schema.define(version: 20150604025212) do
 
   create_table "middle_scores", id: false, force: true do |t|
     t.string   "aid",        null: false
-    t.text     "entity",     null: false
-    t.text     "polarity",   null: false
-    t.text     "core",       null: false
+    t.text     "entity"
+    t.text     "polarity"
+    t.text     "core"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   create_table "newsarticles", id: false, force: true do |t|
-    t.string   "aid",        null: false
-    t.string   "title"
-    t.string   "image"
-    t.string   "summary"
-    t.string   "link"
-    t.string   "text"
-    t.string   "media"
-    t.string   "pid"
-    t.string   "pubdate"
+    t.text     "aid",         null: false
+    t.text     "title"
+    t.text     "summary"
+    t.text     "link"
+    t.text     "text"
+    t.text     "media"
+    t.text     "image"
+    t.text     "pid"
+    t.text     "category"
+    t.text     "pubdate"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "category"
+    t.datetime "analyzed_at"
   end
 
   create_table "polarities", id: false, force: true do |t|
@@ -72,6 +90,7 @@ ActiveRecord::Schema.define(version: 20150604025212) do
     t.decimal  "score"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "pid"
   end
 
   create_table "polarity_scores", id: false, force: true do |t|
@@ -100,6 +119,7 @@ ActiveRecord::Schema.define(version: 20150604025212) do
     t.decimal  "d_score"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "pid"
   end
 
   create_table "uuid_tables", id: false, force: true do |t|
