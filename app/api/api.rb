@@ -121,13 +121,19 @@ class API < Grape::API
       @links = []
       #３つのリンクのactionならば
       if check_links(action) then
+
+        #UserScore:uuid=client_aidかつhistoryに含まれないもの
+        no_history_user_score = UserScore.not_in_history(client_uuid,root_aid)
+
         #pid = root_aidかつ尺度の値が最も大きな記事IDを尺度毎にとる
-		    pol_id = UserScore.where(:p_score => UserScore.maximum(:p_score, :conditions =>{:pid => root_aid, :uuid => client_uuid})).select(:aid)
-        cov_id = UserScore.where(:c_score => UserScore.maximum(:c_score, :conditions =>{:pid => root_aid, :uuid => client_uuid})).select(:aid)
-        det_id = UserScore.where(:d_score => UserScore.maximum(:d_score, :conditions =>{:pid => root_aid, :uuid => client_uuid})).select(:aid)
+		    pol_id = no_history_user_score.where(:p_score => no_history_user_score.maximum(:p_score)).select(:aid)
+        cov_id = no_history_user_score.where(:c_score => no_history_user_score.maximum(:c_score)).select(:aid)
+        det_id = no_history_user_score.where(:d_score => no_history_user_score.maximum(:d_score)).select(:aid)
+
         # pol_id = Polarity.where(:score => Polarity.maximum(:score)).select(:aid)
         # cov_id = Coverage.where(:score => Coverage.maximum(:score)).select(:aid)
         # det_id = Detail.where(:score => Detail.maximum(:score)).select(:aid)
+
         det_link = CurrentNewsView.find_by(:aid => det_id)
         cov_link = CurrentNewsView.find_by(:aid => cov_id)
       	pol_link = CurrentNewsView.find_by(:aid => pol_id)

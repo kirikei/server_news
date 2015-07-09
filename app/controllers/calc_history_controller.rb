@@ -10,10 +10,8 @@ class CalcHistoryController < ApplicationController
 
   #閲覧履歴の保存
   def register_history(client_uuid, read_aid, time)
-    unless(History.where(:uuid => client_uuid, :aid => read_aid).exists?) then
-        new_history = History.new(:uuid => client_uuid, :aid => read_aid, :time => time)
-        new_history.save
-    end
+    new_history = History.new(:uuid => client_uuid, :aid => read_aid, :time => time)
+    new_history.save
   end
 
 
@@ -151,7 +149,7 @@ class CalcHistoryController < ApplicationController
       result = 0
     elsif at_scores.length == 0 then
       ot_scores.each{|key, ot|
-        result += Math.log(((ot).abs/(ot+1))+1)    
+        result -= Math.log(((ot).abs/(ot+1))+1)    
       }
     elsif ot_scores.length == 0 then
       at_scores.each{|key, at|
@@ -160,7 +158,11 @@ class CalcHistoryController < ApplicationController
     else
       at_scores.each{|key, at|
         ot = ot_scores[key]
-        result += Math.log(((at-ot).abs/(at+ot+1))+1)          
+        if((at-ot) >= 0) then
+          result += Math.log(((at-ot).abs/(at+ot+1))+1)   
+        else
+          result -= Math.log(((at-ot).abs/(at+ot+1))+1) 
+        end       
       }
     end
     return result
