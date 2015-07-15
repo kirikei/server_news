@@ -1,7 +1,7 @@
 class UserScore < ActiveRecord::Base
 
 	#渡されたuuidでhistoryに含まれないレコードを返す
-	#引数は””と同じ記法で
+	#引数はprint(””)と同じ記法で
 	scope :not_in_history, ->(uuid, root_aid) do
 		where <<-SQL
 		PID = '#{root_aid}'
