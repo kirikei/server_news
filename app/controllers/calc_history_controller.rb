@@ -5,10 +5,33 @@ class CalcHistoryController < ApplicationController
 
   #uuidの登録
   def register_uuid(client_uuid)
+    ##uuid_tableに存在しないなら登録
     unless(UuidTable.where(:uuid => client_uuid).exists?) then
         new_uuid = UuidTable.new(:uuid => client_uuid)
         new_uuid.save
+
+        #client_uuidのuser_scoresを設定
+        new_uuid_scores = []
+        scores = CurrentNewsView.select_default_user_score
+        Rails.logger.info(scores.inspect)
+        #一つ一つ列に代入して
+        scores.each{|default_score|
+
+          new_score = UserScore.new(
+              :aid => default_score.aid, 
+              :link => default_score.link, 
+              :uuid=>client_uuid, 
+              :p_score=> default_score.p_score, 
+              :c_score => default_score.c_score, 
+              :d_score => default_score.d_score,
+              :pid => default_score.pid)
+
+          new_uuid_scores << new_score
+        }
+        #一気にinsert
+        UserScore.import new_uuid_scores
     end
+        
   end
 
   #閲覧履歴の保存
@@ -19,14 +42,15 @@ class CalcHistoryController < ApplicationController
 
 
   #履歴の増加に因る各尺度の再計算
-  def history_calculate(uuid, read_aid, pid)
-    print("再計算を行います。uuid : #{uuid}, aid : #{read_aid}\n")
+  def history_calculate(uuid, pid, next_aid)
+    print("再計算を行います。uuid : #{uuid}, aid : #{next_aid}\n")
     event_aids = CurrentNewsView.where(:pid => pid).select(:aid)
     hist_aids = History.where(:uuid => uuid, :pid => pid).select(:aid).uniq
+    #hist_aids << next_aid
     #print("@@@@@@@count : #{hist_aids.count}\n")
     calc_cov(hist_aids, event_aids, uuid)
     calc_pol(hist_aids, event_aids, uuid)
-    calc_det(read_aid, event_aids, uuid, hist_aids)
+    calc_det(next_aid, event_aids, uuid, hist_aids)
   end
 
 

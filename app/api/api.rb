@@ -70,6 +70,7 @@ class API < Grape::API
 
       #top記事を持ってくる
       @top_links = CurrentNewsView.where(:pid => nil)
+      #Rails.logger.info(@top_links.inspect)
 
       @top_links = @top_links.select('aid','image','summary','title','category','link','pubdate','media')
     end
@@ -116,18 +117,16 @@ class API < Grape::API
       #historyへの登録
       if read_aid.length != 0 then
           calc_hist.register_history(client_uuid, read_aid, time, root_aid)
-          calc_hist.history_calculate(client_uuid, read_aid, root_aid)
+          calc_hist.history_calculate(client_uuid, root_aid, next_aid)
       end
-
-
 
       @links = []
       #３つのリンクのactionならば
       if check_links(action) then
 
         #UserScore:uuid=client_aidかつhistoryに含まれないもの
-        no_history_user_score = UserScore.not_in_history(client_uuid,root_aid)
-
+        no_history_user_score = UserScore.not_in_history(client_uuid, root_aid, next_aid)
+        Rails.logger.info(no_history_user_score.count.inspect)
         #pid = root_aidかつ尺度の値が最も大きな記事IDを尺度毎にとる
 		    pol_id = no_history_user_score.where(:p_score => no_history_user_score.maximum(:p_score)).select(:aid)
         cov_id = no_history_user_score.where(:c_score => no_history_user_score.maximum(:c_score)).select(:aid)

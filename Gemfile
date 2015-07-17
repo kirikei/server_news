@@ -48,7 +48,7 @@ gem 'unicorn'
 # introduce grape
 gem 'grape'
 #grapeとrablを用いる
-gem 'grape-rabl'
+gem 'grape-rabl', '0.3.1'
 
 # テスト用オブジェクト作成gem
 gem 'factory_girl_rails'
@@ -66,5 +66,8 @@ gem 'composite_primary_keys'
 
 #エラーを防ぐ
 gem 'bigdecimal', '1.2.7'
+
+#bulk insert
+gem 'activerecord-import', '0.10.0'
 
 
