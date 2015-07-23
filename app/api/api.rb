@@ -116,7 +116,7 @@ class API < Grape::API
 
       #historyへの登録
       if read_aid.length != 0 then
-          calc_hist.register_history(client_uuid, read_aid, time, root_aid)
+          #calc_hist.register_history(client_uuid, read_aid, time, root_aid)
           calc_hist.history_calculate(client_uuid, root_aid, next_aid)
       end
 

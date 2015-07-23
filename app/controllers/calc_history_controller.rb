@@ -48,18 +48,19 @@ class CalcHistoryController < ApplicationController
     hist_aids = History.where(:uuid => uuid, :pid => pid).select(:aid).uniq
     #hist_aids << next_aid
     #print("@@@@@@@count : #{hist_aids.count}\n")
-    calc_cov(hist_aids, event_aids, uuid)
-    calc_pol(hist_aids, event_aids, uuid)
+    #calc_cov(hist_aids, event_aids, uuid, next_aid)
+    #calc_pol(hist_aids, event_aids, uuid, next_aid)
     calc_det(next_aid, event_aids, uuid, hist_aids)
   end
 
 
   #coverageの計算
-  def calc_cov(hist_aids, event_aids, uuid)
+  def calc_cov(hist_aids, event_aids, uuid, next_aid)
     all_hist_entities = []
 
     #History全ての記事のentityを統合
-    all_hist_entities = MiddleScore.find_by(:aid => next_aid).entity
+     next_ent_s = MiddleScore.find_by(:aid => next_aid).entity
+     all_hist_entities = string2list(next_ent_s)
 
     hist_aids.each{|hist_aid|
       logger.info(hist_aid.aid.inspect)
@@ -86,7 +87,7 @@ class CalcHistoryController < ApplicationController
   end
 
   #polarityの計算
-  def calc_pol(hist_aids, event_aids, uuid)
+  def calc_pol(hist_aids, event_aids, uuid, next_aid)
 
     all_hist_pols = {}
 
@@ -142,16 +143,17 @@ class CalcHistoryController < ApplicationController
   #detailednessの計算
   def calc_det(next_aid, event_aids, uuid, hist_aids)
     #next_aidのEntity, スコアとトピック番号を取り出す
-    next_records = TopicScore.where(:aid => next_aid)
-    all_hist_records = hist_records.concat(next_records)
+    #logger.info(hist_aids.inspect)
+    #next_records = TopicScore.where(:aid => next_aid)
+    all_hist_records = []#next_records
     #histtoryの全てのrecordsを結合
-    hist_aids.each{|hist_aid|
-      hist_records = TopicScore.where(:aid => hist_aid)
-      all_hist_records = all_hist_records.concat(hist_records)
-    }
-
+    #hist_aids.each{|hist_aid|
+    hist_records = TopicScore.where("aid IN (?) OR aid = (?)", hist_aids, next_aid)
+    all_hist_records = hist_records
+    #}
+    #logger.info(all_hist_records.inspect)
     #columnをHash化(entity => Hash[score])
-    history_hash = sum_topic_score(all_hist_records)
+    history_hash = sum_topic_score(all_hist_records, hist_aids, next_aid)
     #ori_entity_hash = topic_record2hash(next_records)
     #print("ori@@@@@@@@@attributes : #{ori_entity_hash}\n")
 
@@ -262,34 +264,66 @@ class CalcHistoryController < ApplicationController
 
   #topic_scoreのrecordをNamed Entity=>scoreのハッシュへ
   def topic_record2hash(records)
+   #logger.info(records.inspect)
     mapped_records = records.map{|record| [record.entity, record.topic]}
     return Hash[mapped_records]
   end
 
   #historyのrecordを纏める
-  def sum_topic_score(history_records)
+  def sum_topic_score(history_records, hist_aids, next_aid)
     result_hash = {}
-    history_records.each{|topic_records|
+    #
+    #nextのデータをresult_hashへ
+    next_record = history_records.where(:aid => next_aid)
+    #logger.info(next_record.inspect)
+    hashed_next_record = topic_record2hash(next_record)
+    result_hash = sum_hash_score(hashed_next_record,result_hash)
+    print("result_hash_next = #{result_hash}\n")
 
-      hashed_topic_records = topic_records.topic_record2hash
-      hashed_topic_records.each{|entity, score|
+    hist_aids.each{|hist_aid|
+      if(hist_aid.aid != next_aid) then
+      hist_record = history_records.where(:aid => hist_aid.aid)
+      logger.info(hist_record.inspect)
+      hashed_topic_records = topic_record2hash(hist_record)
+      result_hash = sum_hash_score(hashed_topic_records, result_hash)      
+      end
+    #   hashed_topic_records.each{|entity, score|
+    #     #scoreはhashに変換
+    #     hashed_score = string2hash(score)
+    #     if(result_hash.include?(entity)) then
+    #       result_score = result_hash(entity)
+    #       result_score.merge(hashed_score){|topic_num, s1, s2|
+    #         s1 + s2
+    #       }
+    #       result_hash.store(entity, result_score)
+
+    #     else
+    #       result_hash.store(entity, hashed_score)          
+    #     end
+    #   }
+      
+     }
+    print("result_hash_last = #{result_hash}\n")
+    return result_hash
+  end
+
+  #各aidのtopic_scoreを今までのものと合算
+  def sum_hash_score(hashed_topic_records, result)
+    hashed_topic_records.each{|entity, score|
         #scoreはhashに変換
         hashed_score = string2hash(score)
-        if(result_hash.include?(entity)) then
-          result_score = result_hash(entity)
+        if(result.include?(entity)) then
+          result_score = result[entity]
           result_score.merge(hashed_score){|topic_num, s1, s2|
             s1 + s2
           }
-          result_hash.store(entity, result_score)
+          result.store(entity, result_score)
 
         else
-          result_hash.store(entity, hased_score)          
+          result.store(entity, hashed_score)          
         end
       }
-      
-    }
-    
-    return result_hash
+      return result  
   end
 
 end
