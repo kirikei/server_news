@@ -168,21 +168,9 @@ class API < Grape::API
   resource :update do
 
     get '/', rabl: 'api/update' do
-      now_time = Time.now()
-      @send_time = Time.new()
-      year = now_time.year
-      month = now_time.month
-      day = now_time.day
-      hour = now_time.hour
-
-      if(hour > 18 || (hour > 0 && hour < 6)) then
-        @send_time = Time.local(year, month, day, 18, 0, 0)
-      elsif(hour > 6 && hour < 12) then
-        @send_time = Time.local(year, month, day, 6, 0, 0)
-      else
-        @send_time = Time.local(year, month, day, 12, 0, 0)
-      end
-
+      
+      @send_time = CurrentNewsView.maximum(:analyzed_at)
+      
       @send_time.to_json
     end
   end

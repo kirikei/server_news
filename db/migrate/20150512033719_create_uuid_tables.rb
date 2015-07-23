@@ -5,5 +5,6 @@ class CreateUuidTables < ActiveRecord::Migration
 
       t.timestamps
     end
+    execute "ALTER TABLE uuid_tables ADD PRIMARY KEY (uuid);"
   end
 end
