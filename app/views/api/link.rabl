@@ -6,6 +6,6 @@ if(@links.length != 0) then
 		attributes :aid, :link, :kind
 	end
 else
-	node(:result){""}
+	node(:result){@links}
 end
 #childでもrootの名前変更可能

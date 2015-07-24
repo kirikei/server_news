@@ -116,7 +116,7 @@ class API < Grape::API
 
       #historyへの登録
       if read_aid.length != 0 then
-          #calc_hist.register_history(client_uuid, read_aid, time, root_aid)
+          calc_hist.register_history(client_uuid, read_aid, time, root_aid)
           calc_hist.history_calculate(client_uuid, root_aid, next_aid)
       end
 
@@ -131,27 +131,27 @@ class API < Grape::API
         #関連記事が存在するならば
         if(no_history_user_score.count > 0) then
         #pid = root_aidかつ尺度の値が最も大きな記事IDを尺度毎にとる
-		    pol_id = no_history_user_score.where(:p_score => no_history_user_score.maximum(:p_score)).select(:aid)
-        cov_id = no_history_user_score.where(:c_score => no_history_user_score.maximum(:c_score)).select(:aid)
-        det_id = no_history_user_score.where(:d_score => no_history_user_score.maximum(:d_score)).select(:aid)
+		      pol_id = no_history_user_score.where(:p_score => no_history_user_score.maximum(:p_score)).select(:aid)
+          cov_id = no_history_user_score.where(:c_score => no_history_user_score.maximum(:c_score)).select(:aid)
+          det_id = no_history_user_score.where(:d_score => no_history_user_score.maximum(:d_score)).select(:aid)
 
         # pol_id = Polarity.where(:score => Polarity.maximum(:score)).select(:aid)
         # cov_id = Coverage.where(:score => Coverage.maximum(:score)).select(:aid)
         # det_id = Detail.where(:score => Detail.maximum(:score)).select(:aid)
 
-        det_link = CurrentNewsView.find_by(:aid => det_id)
-        cov_link = CurrentNewsView.find_by(:aid => cov_id)
-      	pol_link = CurrentNewsView.find_by(:aid => pol_id)
+          det_link = CurrentNewsView.find_by(:aid => det_id)
+          cov_link = CurrentNewsView.find_by(:aid => cov_id)
+      	  pol_link = CurrentNewsView.find_by(:aid => pol_id)
 
         #kindを更新し、どの尺度の記事か見分けられるように
-        det_link.update_attribute(:kind, 'deep') 
-        cov_link.update_attribute(:kind, 'wide')
-        pol_link.update_attribute(:kind, 'opp')
+          det_link.update_attribute(:kind, 'deep') 
+          cov_link.update_attribute(:kind, 'wide')
+          pol_link.update_attribute(:kind, 'opp')
 
         #linkに入れる
-        @links.push(det_link)
-        @links.push(cov_link)
-        @links.push(pol_link)
+          @links.push(det_link)
+          @links.push(cov_link)
+          @links.push(pol_link)
 
         end
 

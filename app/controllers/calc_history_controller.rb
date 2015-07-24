@@ -48,9 +48,15 @@ class CalcHistoryController < ApplicationController
     hist_aids = History.where(:uuid => uuid, :pid => pid).select(:aid).uniq
     #hist_aids << next_aid
     #print("@@@@@@@count : #{hist_aids.count}\n")
-    #calc_cov(hist_aids, event_aids, uuid, next_aid)
-    #calc_pol(hist_aids, event_aids, uuid, next_aid)
-    calc_det(next_aid, event_aids, uuid, hist_aids)
+    #再計算できなかったら抜ける
+    begin
+      calc_cov(hist_aids, event_aids, uuid, next_aid)
+      calc_pol(hist_aids, event_aids, uuid, next_aid)
+      calc_det(next_aid, event_aids, uuid, hist_aids)  
+    rescue Exception => e
+      print(e)
+    end
+    
   end
 
 
