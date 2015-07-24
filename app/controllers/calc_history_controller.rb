@@ -314,7 +314,8 @@ class CalcHistoryController < ApplicationController
         hashed_score = string2hash(score)
         if(result.include?(entity)) then
           result_score = result[entity]
-          result_score.merge(hashed_score){|topic_num, s1, s2|
+          result_score.merge!(hashed_score){|topic_num, s1, s2|
+            printf("merge : #{s1} #{s2}\n")
             s1 + s2
           }
           result.store(entity, result_score)

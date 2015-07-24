@@ -126,7 +126,10 @@ class API < Grape::API
 
         #UserScore:uuid=client_aidかつhistoryに含まれないもの
         no_history_user_score = UserScore.not_in_history(client_uuid, root_aid, next_aid)
-        Rails.logger.info(no_history_user_score.count.inspect)
+        #Rails.logger.info(no_history_user_score.count.inspect)
+
+        #関連記事が存在するならば
+        if(no_history_user_score.exist?) then
         #pid = root_aidかつ尺度の値が最も大きな記事IDを尺度毎にとる
 		    pol_id = no_history_user_score.where(:p_score => no_history_user_score.maximum(:p_score)).select(:aid)
         cov_id = no_history_user_score.where(:c_score => no_history_user_score.maximum(:c_score)).select(:aid)
@@ -149,6 +152,8 @@ class API < Grape::API
         @links.push(det_link)
         @links.push(cov_link)
         @links.push(pol_link)
+
+        end
 
       end
 
