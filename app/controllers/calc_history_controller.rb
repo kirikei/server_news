@@ -13,14 +13,14 @@ class CalcHistoryController < ApplicationController
         #client_uuidのuser_scoresを設定
         new_uuid_scores = []
         scores = CurrentNewsView.select_default_user_score
-        Rails.logger.info(scores.inspect)
+        #Rails.logger.info(scores.inspect)
         #一つ一つ列に代入して
         scores.each{|default_score|
 
           new_score = UserScore.new(
               :aid => default_score.aid, 
               :link => default_score.link, 
-              :uuid=>client_uuid, 
+              :uuid =>client_uuid, 
               :p_score=> default_score.p_score, 
               :c_score => default_score.c_score, 
               :d_score => default_score.d_score,
@@ -35,8 +35,8 @@ class CalcHistoryController < ApplicationController
   end
 
   #閲覧履歴の保存
-  def register_history(client_uuid, read_aid, time, pid)
-    new_history = History.new(:uuid => client_uuid, :aid => read_aid, :time => time, :pid=>pid)
+  def register_history(client_uuid, read_aid, time, pid, action)
+    new_history = History.new(:uuid => client_uuid, :aid => read_aid, :time => time, :pid=>pid, :action=>action)
     new_history.save
   end
 
@@ -46,13 +46,14 @@ class CalcHistoryController < ApplicationController
     print("再計算を行います。uuid : #{uuid}, aid : #{next_aid}\n")
     event_aids = CurrentNewsView.where(:pid => pid).select(:aid)
     hist_aids = History.where(:uuid => uuid, :pid => pid).select(:aid).uniq
+    cores = get_cores(pid)
     #hist_aids << next_aid
-    #print("@@@@@@@count : #{hist_aids.count}\n")
+    print("@@@@@@@core : #{cores}\n")
     #再計算できなかったら抜ける
     begin
       calc_cov(hist_aids, event_aids, uuid, next_aid)
-      calc_pol(hist_aids, event_aids, uuid, next_aid)
-      calc_det(next_aid, event_aids, uuid, hist_aids)  
+      calc_pol(hist_aids, event_aids, uuid, next_aid, cores)
+      calc_det(next_aid, event_aids, uuid, hist_aids, cores)  
     rescue Exception => e
       print(e)
     end
@@ -93,7 +94,7 @@ class CalcHistoryController < ApplicationController
   end
 
   #polarityの計算
-  def calc_pol(hist_aids, event_aids, uuid, next_aid)
+  def calc_pol(hist_aids, event_aids, uuid, next_aid, cores)
 
     all_hist_pols = {}
 
@@ -137,8 +138,14 @@ class CalcHistoryController < ApplicationController
           if all_hist_pols.include?(key) then
             hist_score = all_hist_pols[key]
           end
-          
-          pol_result += (score - hist_score).abs
+
+          #コアエンティティを含むかどうかで重みづけ
+          if(cores.include?(key)) then
+            
+            pol_result += @@pol_weight*(score - hist_score).abs
+          else
+            pol_result += (1.0 - @@pol_weight)*(score - hist_score).abs
+          end
           }
           #UserScoreの値を更新
           UserScore.where(:aid => each_aid, :uuid => uuid).update_all(:p_score => pol_result)
@@ -147,7 +154,7 @@ class CalcHistoryController < ApplicationController
   end
 
   #detailednessの計算
-  def calc_det(next_aid, event_aids, uuid, hist_aids)
+  def calc_det(next_aid, event_aids, uuid, hist_aids, cores)
     #next_aidのEntity, スコアとトピック番号を取り出す
     #logger.info(hist_aids.inspect)
     #next_records = TopicScore.where(:aid => next_aid)
@@ -204,7 +211,16 @@ class CalcHistoryController < ApplicationController
            
           end
 
-          det_result += log_calc(topic_hash, hist_topic_hash)
+          weight = 0.0
+          #coreに入っているか？
+          if(cores.include?(key)) then 
+            weight = @@det_weight
+          else
+            weight = 1 - @@det_weight
+          end
+          print("key : #{key} weight : #{weight}\n")
+
+          det_result += log_calc(topic_hash, hist_topic_hash, weight)
 
           }
           #Historyの値を更新
@@ -232,7 +248,7 @@ class CalcHistoryController < ApplicationController
   end
 
   #詳細の差のlog計算
-  def log_calc(at_scores, ot_scores)
+  def log_calc(at_scores, ot_scores, weight)
       result = 0.0
 
       #例外を拾ったら取りあえず0を返す
@@ -241,11 +257,11 @@ class CalcHistoryController < ApplicationController
           result = 0.0
         elsif at_scores.length == 0 then
           ot_scores.each{|key, ot|
-            result -= Math.log(((ot).abs/(ot+1))+1)    
+            result -= weight * Math.log(((ot).abs/(ot+1))+1)    
           }
         elsif ot_scores.length == 0 then
           at_scores.each{|key, at|
-            result += Math.log(((at).abs/(at+1))+1)          
+            result += weight * Math.log(((at).abs/(at+1))+1)          
           }
         else
           at_scores.each{|key, at|
@@ -253,9 +269,9 @@ class CalcHistoryController < ApplicationController
             ot = ot_scores[key]
 
             if((at - ot) >= 0) then
-              result += Math.log(((at-ot).abs/(at+ot+1))+1)   
+              result += weight * Math.log(((at-ot).abs/(at+ot+1))+1)   
             else
-              result -= Math.log(((at-ot).abs/(at+ot+1))+1) 
+              result -= weight * Math.log(((at-ot).abs/(at+ot+1))+1) 
             end       
           }
         end
@@ -284,7 +300,7 @@ class CalcHistoryController < ApplicationController
     #logger.info(next_record.inspect)
     hashed_next_record = topic_record2hash(next_record)
     result_hash = sum_hash_score(hashed_next_record,result_hash)
-    print("result_hash_next = #{result_hash}\n")
+    #print("result_hash_next = #{result_hash}\n")
 
     hist_aids.each{|hist_aid|
       if(hist_aid.aid != next_aid) then
@@ -309,7 +325,7 @@ class CalcHistoryController < ApplicationController
     #   }
       
      }
-    print("result_hash_last = #{result_hash}\n")
+    #print("result_hash_last = #{result_hash}\n")
     return result_hash
   end
 
@@ -321,7 +337,7 @@ class CalcHistoryController < ApplicationController
         if(result.include?(entity)) then
           result_score = result[entity]
           result_score.merge!(hashed_score){|topic_num, s1, s2|
-            printf("merge : #{s1} #{s2}\n")
+            #printf("merge : #{s1} #{s2}\n")
             s1 + s2
           }
           result.store(entity, result_score)
@@ -331,6 +347,13 @@ class CalcHistoryController < ApplicationController
         end
       }
       return result  
+  end
+
+  def get_cores(pid)
+    cores = []
+    cores_s = MiddleScore.find_by(:aid => pid).core
+    cores = string2list(cores_s)
+
   end
 
 end
